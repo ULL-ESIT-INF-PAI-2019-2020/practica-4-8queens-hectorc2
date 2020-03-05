@@ -17,7 +17,9 @@ en alguna transparencia de clase.
 Modificando convenientemente el fichero `index.html` (o colocando los ficheros necesarios en su lugar) en el directorio `www`del proyecto creado puede visualizar diferentes webs que pudiera crear en el futuro. 
 Experimente con este servidor web.
 
+
 #### El problema de las 8 reinas
+
 
 El problema de las [8 reinas](https://en.wikipedia.org/wiki/Eight_queens_puzzle) es un pasatiempo famoso consistente en colocar ocho reinas
 en un tablero de ajedrez de modo que no se amenacen.
