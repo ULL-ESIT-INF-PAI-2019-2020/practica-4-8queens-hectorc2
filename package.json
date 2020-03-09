@@ -1,0 +1,11 @@
+{
+  "name": "Prob8Reinas",
+  "version": "1.0.0",
+  "description": "Solucion al problema de las ocho reinas",
+  "main": "8queens.js",
+  "scripts": {
+    "docs": "./node_modules/.bin/jsdoc -c jsdoc.json"
+  },
+  "author": "alu0101017839",
+  "license": "None"
+}
