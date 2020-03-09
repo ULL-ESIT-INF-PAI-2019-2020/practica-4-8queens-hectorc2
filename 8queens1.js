@@ -86,10 +86,9 @@ function resolver8Reinas (reinas2 = [], colocadas = 0, nueva){
 
 function anadirReina (reinas, eleccion){
   
-  //Busca una posicion que no coincida vertical u horizontalmente con ninguna otra reina y si masDeUna es verdadero entonces tambien comprueba la otra restriccion mediante pisaLinea
+  //Busca una posicion que no coincida vertical u horizontalmente con ninguna otra reina
   
   function nuevaPosicion (){
-    let masDeUna = (reinas.length > 1);
     let posibilidadActual = 0;
     let posY = (reinas.length == 0) ? 0 : reinas [reinas.length - 1].posY + 1;
     

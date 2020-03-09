@@ -19,13 +19,42 @@ class recta {
   }
 };
 
+process.stdin.setEncoding('utf-8');
+
+const start = new Date();
+let startEditable = start;
+
+let soluciones = resolver8Reinas();
+
+mostrar (soluciones[0]);
+soluciones.shift();
+
+seguirONo (soluciones);
 
 
+//Crea un event listener que comprueba si es necesario seguir mostrando soluciones mientras queden y si lo es, las muestra junto a los tiempos de calculo y desde el inicio del programa
 
-resolver8Reinas();
-
-
-
+function seguirONo (){
+  console.log(" Tiempo invertido en el calculo:", Math.floor((soluciones.tiempo [0])/500) / 2,"segundos (" + soluciones.tiempo [0], "ms)\n Tiempo transcurrido desde el inicio: ", Math.floor((new Date() - start)/500) / 2, "\n ¿Mostrar la siguiente solución?\n (s/n)");
+  soluciones.tiempo.shift();
+  process.stdin.on('data', function (data) {
+    if ((data === 's\n')||(data === 'S\n')){
+      mostrar (soluciones[0]);
+      soluciones.shift();
+      console.log(" Tiempo invertido en el calculo:", Math.floor((soluciones.tiempo [0])/500) / 2,"segundos (" + soluciones.tiempo [0], "ms)\n Tiempo transcurrido desde el inicio:", Math.floor((new Date() - start)/500) / 2, "segundos.");
+      soluciones.tiempo.shift();
+      if (soluciones.length == 0){
+        console.log (" Ya no quedan soluciones.\n");
+        process.exit();
+      }
+      console.log("\n ¿Mostrar la siguiente solución?");
+    } else if ((data === 'n\n')||(data === 'N\n')){
+      process.exit();
+    } else {
+      console.log(" (s/n)");
+    }
+  });
+}
 
 //Muestra el tablero con las reinas almacenadas en 'reinas'
 
@@ -57,33 +86,35 @@ function mostrar (reinas) {
   console.log (print + "1\n");
 }
 
-//Imprime soluciones al problema mientras se le indique o hasta mostrarlas todas
+//Devuelve un vector con todas las soluciones al problema y el tiempo que ha llevado calcular cada una (en ms)
 
-function resolver8Reinas (reinas2 = [], colocadas = 0, nueva){
+function resolver8Reinas (reinas2 = [], colocadas = 0, nueva, devolver = []){
   let reinas = [];
-  for (elemento = 0; elemento < reinas2.length; elemento++)
+  for (elemento = 0; elemento < reinas2.length; elemento++){
     reinas.push(reinas2 [elemento]);
+  }
   
-  if (nueva != null)
+  if (nueva != null){
     reinas.push (nueva);
+  } else {
+    devolver.tiempo = [];
+  }
   if (colocadas == 8){
-    mostrar (reinas);
-    
-    return /*Si segun teclado ha de seguir: null; y si no, un valor (true¿).*/null;
+    devolver.push (reinas);
+    devolver.tiempo.push (new Date() - startEditable);
+    startEditable = new Date();
+    return devolver;
   }
   
   let eleccion = 0;
   let actual = anadirReina (reinas, eleccion);
-  let resultado = null;
-  while ((resultado == null)&&(actual != null)){
-    resultado = resolver8Reinas (reinas, colocadas + 1, actual);
+  while (actual != null){
+    devolver = resolver8Reinas (reinas, colocadas + 1, actual, devolver);
     eleccion++;
     actual = anadirReina (reinas, eleccion);
   }
   
-  if ((reinas == [])&&(resultado == null))
-    console.log ("\nYa no quedan mas soluciones.\n");
-  return resultado;
+  return devolver;
 }
 
 
@@ -94,10 +125,9 @@ function resolver8Reinas (reinas2 = [], colocadas = 0, nueva){
 
 function anadirReina (reinas, eleccion){
   
-  //Busca una posicion que no coincida vertical u horizontalmente con ninguna otra reina y si masDeUna es verdadero entonces tambien comprueba la otra restriccion mediante pisaLinea
+  //Busca una posicion que no coincida vertical u horizontalmente con ninguna otra reina y luego comprueba la otra restriccion mediante pisaLinea
   
   function nuevaPosicion (){
-    let masDeUna = (reinas.length > 1);
     let posibilidadActual = 0;
     let posY = (reinas.length == 0) ? 0 : reinas [reinas.length - 1].posY + 1;
     
@@ -133,7 +163,7 @@ function anadirReina (reinas, eleccion){
   
   function pisaLinea (punto){
     for (reinaPuntoInicial = 0; reinaPuntoInicial < (reinas.length - 1); reinaPuntoInicial++){
-      for (reinaPuntoFinal = (reinaPuntoInicial + 1); reinaPuntoFinal < reinas.length; reinaPuntoFinal++){
+      for (reinaPuntoFinal = reinaPuntoInicial + 1; reinaPuntoFinal < reinas.length; reinaPuntoFinal++){
         if (estaEnLaRecta (punto, rectaDosPuntos (reinas[reinaPuntoInicial], reinas[reinaPuntoFinal]))){
           return true;
         }
