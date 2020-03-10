@@ -11,15 +11,15 @@
 
 class coordenada {
 
-  /** 
-   * @param {number} posX_ - Posicion en x (horizontal)
-   * @param {number} posY_ - Posicion en y (vertical)
-   * */
-
-  constructor (posX_, posY_){
-    this.posX = posX_;
-    this.posY = posY_;
-  }
+    /** 
+     * @param {number} posX_ - Posicion en x (horizontal)
+     * @param {number} posY_ - Posicion en y (vertical)
+     * */
+  
+    constructor (posX_, posY_){
+      this.posX = posX_;
+      this.posY = posY_;
+    }
 };
 
 /** 
@@ -39,46 +39,26 @@ class recta {
   }
 };
 
+if (process.argv.length < 3){
+  console.log("Error introduce solamente el lado del tablero.");
+  process.exit();
+}
+let ladoTablero = process.argv[2] - 0;
+if (ladoTablero < 8){
+  console.log("Error el lado del tablero debe ser superior a 7.");
+  process.exit();
+}
+
 process.stdin.setEncoding('utf-8');
 
 const start = new Date();
 let startEditable = start;
 
-let soluciones = resolver8Reinas();
 
-mostrar (soluciones[0]);
-soluciones.shift();
-
-seguirONo (soluciones);
+let soluciones = resolverNReinas();
+console.log(" Tiempo invertido en el calculo:", Math.floor(new Date() - start) / 1000, "segundos\n Numero de soluciones:", soluciones.length);
 
 
-
-/**
- * Crea un event listener que comprueba si es necesario seguir mostrando soluciones mientras queden y si lo es, las muestra junto a los tiempos de calculo y desde el inicio del programa
- * @constructor
- * */
-
-function seguirONo (){
-  console.log(" Tiempo invertido en el calculo:", Math.floor((soluciones.tiempo [0])/500) / 2,"segundos (" + soluciones.tiempo [0], "ms)\n Tiempo transcurrido desde el inicio: ", Math.floor((new Date() - start)/500) / 2, "\n ¿Mostrar la siguiente solución?\n (s/n)");
-  soluciones.tiempo.shift();
-  process.stdin.on('data', function (data) {
-    if ((data === 's\n')||(data === 'S\n')){
-      mostrar (soluciones[0]);
-      soluciones.shift();
-      console.log(" Tiempo invertido en el calculo:", Math.floor((soluciones.tiempo [0])/500) / 2,"segundos (" + soluciones.tiempo [0], "ms)\n Tiempo transcurrido desde el inicio:", Math.floor((new Date() - start)/500) / 2, "segundos.");
-      soluciones.tiempo.shift();
-      if (soluciones.length == 0){
-        console.log (" Ya no quedan soluciones.\n");
-        process.exit();
-      }
-      console.log("\n ¿Mostrar la siguiente solución?");
-    } else if ((data === 'n\n')||(data === 'N\n')){
-      process.exit();
-    } else {
-      console.log(" (s/n)");
-    }
-  });
-}
 
 /**
  * Muestra el tablero con las reinas en 'reinas'
@@ -87,19 +67,22 @@ function seguirONo (){
  * */
 
 function mostrar (reinas) {
-  console.log ("\n   a b c d e f g h");
-  let print = "   ";
+  let print = "\n   ";
+  for (let casilla = 97; casilla < 97 + ladoTablero; casilla++)
+    print += (String.fromCharCode(casilla) + " ");
+  console.log (print);
+  print = "   ";
   let posHoriz = 0;
-  for (casilla = 0; casilla < 64; casilla++){
-    if (posHoriz == 8){
-      print += (8 - ((casilla / 8) - 1)) + "\n   ";
+  for (casilla = 0; casilla < ladoTablero*ladoTablero; casilla++){
+    if (posHoriz == ladoTablero){
+      print += (ladoTablero - ((casilla / ladoTablero) - 1)) + "\n   ";
       posHoriz = 0;
     }
     posHoriz++;
     
     let hayReina = false;
     for (actual = 0; actual < reinas.length; actual++){
-      if (((casilla % 8) == reinas[actual].posX) && (((casilla / 8) - ((casilla / 8)%1)) == reinas[actual].posY)){
+      if (((casilla % ladoTablero) == reinas[actual].posX) && (((casilla / ladoTablero) - ((casilla / ladoTablero)%1)) == reinas[actual].posY)){
         hayReina = true;
         break;
       }
@@ -123,7 +106,7 @@ function mostrar (reinas) {
  * @param {array} devolver - Almacena las solucioness encontradas y su tiempo de calculo en .tiempo en la misma posicion.
  * */
 
-function resolver8Reinas (reinas2 = [], colocadas = 0, nueva, devolver = []){
+function resolverNReinas (reinas2 = [], colocadas = 0, nueva, devolver = []){
   let reinas = [];
   for (elemento = 0; elemento < reinas2.length; elemento++){
     reinas.push(reinas2 [elemento]);
@@ -134,7 +117,7 @@ function resolver8Reinas (reinas2 = [], colocadas = 0, nueva, devolver = []){
   } else {
     devolver.tiempo = [];
   }
-  if (colocadas == 8){
+  if (colocadas == ladoTablero){
     devolver.push (reinas);
     devolver.tiempo.push (new Date() - startEditable);
     startEditable = new Date();
@@ -144,7 +127,7 @@ function resolver8Reinas (reinas2 = [], colocadas = 0, nueva, devolver = []){
   let eleccion = 0;
   let actual = anadirReina (reinas, eleccion);
   while (actual != null){
-    devolver = resolver8Reinas (reinas, colocadas + 1, actual, devolver);
+    devolver = resolverNReinas (reinas, colocadas + 1, actual, devolver);
     eleccion++;
     actual = anadirReina (reinas, eleccion);
   }
@@ -164,7 +147,6 @@ function anadirReina (reinas, eleccion){
   
   /**
    * Busca una posicion que no coincida diagonal, vertical u horizontalmente con ninguna otra reina y luego comprueba la otra restriccion mediante pisaLinea
-   * @constructor
    * @returns {coordenada} La posicion o null
    * */
   
@@ -172,7 +154,7 @@ function anadirReina (reinas, eleccion){
     let posibilidadActual = 0;
     let posY = (reinas.length == 0) ? 0 : reinas [reinas.length - 1].posY + 1;
     
-    for (posX = 0; posX < 8; posX++){
+    for (posX = 0; posX < ladoTablero; posX++){
       let sitioLibre = true;
       for (reinaActual = 0; reinaActual < reinas.length; reinaActual++){
         if (posX == reinas[reinaActual].posX){
